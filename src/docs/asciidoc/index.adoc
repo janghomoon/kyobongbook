@@ -1,0 +1,54 @@
+= kyobong REST API Guide
+문장호;
+backtony.github.io(부제)
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+[[kyobong-API]]
+== 0. 소개
+
+----
+교봉문서 API 가이드 문서입니다.
+----
+
+
+[[Book-API]]
+== 1. Book API
+
+[[도서조회]]
+=== [교봉] 도서 조회
+
+****
+- Http Request:
+include::{snippets}/book-search/http-request.adoc[]
+
+- Request Fields:
+include::{snippets}/book-search/query-parameters.adoc[]
+
+- Http Response:
+include::{snippets}/book-search/http-response.adoc[]
+
+- Response Fields:
+include::{snippets}/book-search/response-fields.adoc[]
+****
+
+// [[도서수정]]
+// === [교봉] 도서 수정
+//
+// ****
+// - Http Request:
+// include::{snippets}/book-update/http-request.adoc[]
+//
+// - Request Fields:
+// include::{snippets}/book-update/request-fields.adoc[]
+//
+// - Http Response:
+// include::{snippets}/book-update/http-response.adoc[]
+//
+// - Response Fields:
+// include::{snippets}/book-update/response-fields.adoc[]
+// ****
