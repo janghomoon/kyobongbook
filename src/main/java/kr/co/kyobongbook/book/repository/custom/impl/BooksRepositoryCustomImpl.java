@@ -28,10 +28,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class BooksRepositoryCustomImpl implements BooksRepositoryCustom {
 
     private final JPAQueryFactory jpaQueryFactory;
-    //    private final RegexpURLValidator regexpURLValidator;
-    private final QBooks books = QBooks.books;
-    private final QCategories categories = QCategories.categories;
-    private final QBookCategories bookCategories = QBookCategories.bookCategories;
+    private static final QBooks books = QBooks.books;
+    private static final QCategories categories = QCategories.categories;
+    private static final QBookCategories bookCategories = QBookCategories.bookCategories;
 
     @Override
     @Transactional(readOnly = true)
@@ -44,10 +43,9 @@ public class BooksRepositoryCustomImpl implements BooksRepositoryCustom {
 //        Order order = sortDirection.equalsIgnoreCase("asc") ? Order.ASC : Order.DESC;
 
 //        OrderSpecifier<?> orderBy = new OrderSpecifier<>(order, path);
-//        Sort sort = request.toPageRequest().getSort();
         List<Books> list = jpaQueryFactory.selectFrom(books)
-                .innerJoin(books.bookCategories)
-                .leftJoin(categories)
+                .join(books.bookCategories, bookCategories).fetchJoin()//N+1 해결
+                .join(bookCategories.category, categories).fetchJoin()
                 .where(categoryNameEq(request.getCategoryName())
                         , bookTitleEq(request.getTitle()),
                         bookAuthorEq(request.getAuthor())
@@ -58,8 +56,8 @@ public class BooksRepositoryCustomImpl implements BooksRepositoryCustom {
                 .fetch();
 
         JPAQuery<Long> count = jpaQueryFactory.select(books.count()).from(books)
-                .innerJoin(books.bookCategories)
-                .leftJoin(categories)
+                .join(books.bookCategories, bookCategories).fetchJoin()
+                .join(bookCategories.category, categories).fetchJoin()
                 .where(categoryNameEq(request.getCategoryName())
                         , bookTitleEq(request.getTitle()),
                         bookAuthorEq(request.getAuthor())
