@@ -1,9 +1,9 @@
 package kr.co.kyobongbook.book.service.facade;
 
 import kr.co.kyobongbook.book.dto.get.request.FindBooksRequest;
-import kr.co.kyobongbook.book.dto.get.response.FindBoosResponse;
+import kr.co.kyobongbook.book.dto.get.response.FindBooksResponse;
 
 public interface BookFacade {
 
-    FindBoosResponse findBooks(FindBooksRequest request);
+    FindBooksResponse findBooks(FindBooksRequest request);
 }

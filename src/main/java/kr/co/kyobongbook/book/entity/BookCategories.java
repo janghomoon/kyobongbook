@@ -8,7 +8,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import kr.co.kyobongbook.book.dto.get.response.FindBoosResponseCategoryData;
+import kr.co.kyobongbook.book.dto.get.response.FindBooksResponseCategoryData;
 import kr.co.kyobongbook.book.entity.id.BookCategoryId;
 import kr.co.kyobongbook.common.entity.BaseEntity;
 import lombok.AccessLevel;
@@ -28,15 +28,6 @@ public class BookCategories extends BaseEntity {
     @EmbeddedId
     private BookCategoryId bookCategoryId;
 
-
-//    @  
-//    ManyToOne
-//    @JoinColumn(name = "book_id", insertable = false, updatable = false)
-//    private Book book;
-//
-//    @ManyToOne
-//    @JoinColumn(name = "category_id", insertable = false, updatable = false)
-//    private Category category;
     @MapsId("bookId")
     @ManyToOne
     @JoinColumn(name = "book_id", insertable = false, updatable = false)
@@ -47,10 +38,8 @@ public class BookCategories extends BaseEntity {
     @JoinColumn(name = "category_id", insertable = false, updatable = false)
     private Categories category;
 
-
-
-    public FindBoosResponseCategoryData toFindBoosResponseCategoryData() {
-        return FindBoosResponseCategoryData.builder()
+    public FindBooksResponseCategoryData toFindBoosResponseCategoryData() {
+        return FindBooksResponseCategoryData.builder()
                 .categoryId(this.category.getCategoryId())
                 .categoryName(this.category.getCategoryName())
                 .build();

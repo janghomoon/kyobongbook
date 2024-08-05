@@ -12,12 +12,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 @Builder
-public class FindBoosResponseData {
+public class FindBooksResponse {
 
-    private Long bookId;
-    private String title;
-    private String author;
-    private Boolean isAvailable;
-    private String notAvailableReason;
-    private List<FindBoosResponseCategoryData> bookCategories;
+    private List<FindBooksResponseData> data;
 }

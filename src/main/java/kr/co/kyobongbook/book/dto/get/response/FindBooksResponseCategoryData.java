@@ -1,6 +1,5 @@
 package kr.co.kyobongbook.book.dto.get.response;
 
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,7 +11,10 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 @Builder
-public class FindBoosResponse {
+public class FindBooksResponseCategoryData {
 
-    private List<FindBoosResponseData> data;
+    private Long categoryId;
+
+    private String categoryName;
+
 }

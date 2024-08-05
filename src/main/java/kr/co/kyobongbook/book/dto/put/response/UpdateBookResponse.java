@@ -1,4 +1,4 @@
-package kr.co.kyobongbook.book.dto.get.response;
+package kr.co.kyobongbook.book.dto.put.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,10 +11,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 @Builder
-public class FindBoosResponseCategoryData {
+public class UpdateBookResponse {
 
-    private Long categoryId;
-
-    private String categoryName;
-
+    private Boolean isUpdate;
 }
