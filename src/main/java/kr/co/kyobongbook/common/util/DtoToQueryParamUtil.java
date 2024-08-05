@@ -8,6 +8,9 @@ import java.util.Map;
 
 public class DtoToQueryParamUtil {
 
+    private DtoToQueryParamUtil() {
+    }
+
     public static String convertToQueryParams(Object dto) throws IllegalAccessException {
         Map<String, String> queryParamsMap = new HashMap<>();
 
