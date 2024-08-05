@@ -80,6 +80,16 @@ tasks.named('asciidoctor') {
     inputs.dir snippetsDir
     dependsOn test
 }
+asciidoctor.doFirst {
+    delete file('src/main/resources/static/docs')
+}
+
+asciidoctor.doLast {
+    copy {
+        from "${asciidoctor.outputDir}"
+        into 'build/resources/main/static/docs'
+    }
+}
 
 tasks.register('copyDocument', Copy) {
     dependsOn asciidoctor
@@ -90,11 +100,7 @@ tasks.register('copyDocument', Copy) {
 build {
     dependsOn copyDocument
 }
-bootJar {
-    dependsOn asciidoctor
-    copy {
-        from "${asciidoctor.outputDir}"
-        into 'src/main/resources/static/docs'
-    }
 
+bootJar {
+    dependsOn copyDocument
 }
