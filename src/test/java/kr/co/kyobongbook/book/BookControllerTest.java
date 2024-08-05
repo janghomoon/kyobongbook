@@ -1,4 +1,179 @@
+package kr.co.kyobongbook.book;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.Valid;
+import kr.co.kyobongbook.book.dto.get.request.FindBooksRequest;
+import kr.co.kyobongbook.book.dto.get.response.FindBooksResponse;
+import kr.co.kyobongbook.book.dto.put.request.UpdateBookRequest;
+import kr.co.kyobongbook.book.dto.put.response.UpdateBookResponse;
+import kr.co.kyobongbook.book.service.facade.impl.BookFacadeImpl;
+import kr.co.kyobongbook.common.infra.exception.KyobongException;
+import kr.co.kyobongbook.common.util.DtoToQueryParamUtil;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.restdocs.request.RequestDocumentation;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+@AutoConfigureMockMvc // -> webAppContextSetup(webApplicationContext)
+@AutoConfigureRestDocs // -> apply(documentationConfiguration(restDocumentation))
+@SpringBootTest
 class BookControllerTest {
-  
+    @Autowired
+    private MockMvc mockMvc;
+    @MockBean
+    private BookFacadeImpl bookFacade;
+    @Autowired
+    private ObjectMapper objectMapper;
+
+
+
+    @Test
+    @DisplayName("도서 조회 API 문서 작성")
+    void findBooksRestDocTest() throws Exception {
+        FindBooksRequest findBooksRequest =  FindBooksRequest.builder()
+                .title("너에게 해주지 못한 말들")
+                .author("권태영")
+                .categoryName("문학")
+                .page(0)
+                .size(100)
+                .sort("title")
+                .sortDirection("asc")
+                .build();
+        Mockito.when(bookFacade.findBooks(any()))
+                .thenReturn(getFindBooksResponse());
+
+        String url = String.format("%s%s", "/book?",
+                DtoToQueryParamUtil.convertToQueryParams(findBooksRequest));
+
+        mockMvc.perform(get(url)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isOk()).andDo(document("book-search"
+                        , preprocessRequest(prettyPrint())
+                        , preprocessResponse(prettyPrint())
+                , queryParameters(
+                                parameterWithName("categoryName").description("카테고리명")
+                        , parameterWithName("title").description("도서 제목")
+                                , parameterWithName("author").description("저자")
+                                , parameterWithName("sort").description("정렬 컬럼 명")
+                                , parameterWithName("sortDirection").description("정렬 타입 (asc, desc)")
+                                , parameterWithName("page").description("페이지 넘버")
+                                , parameterWithName("size").description("노출 데이터 로우 수")
+
+                        )
+                        , responseFields(
+                                fieldWithPath("data").type(JsonFieldType.ARRAY).description("도서 정보")
+                        , fieldWithPath("data[].bookId").type(JsonFieldType.NUMBER).description("도서 아이디")
+                                , fieldWithPath("data[].title").type(JsonFieldType.STRING).description("도서 제목")
+                                , fieldWithPath("data[].author").type(JsonFieldType.STRING).description("도서 저자")
+                                , fieldWithPath("data[].isAvailable").type(JsonFieldType.BOOLEAN).description("도서 대여 가능 여부")
+                                , fieldWithPath("data[].notAvailableReason").type(JsonFieldType.STRING).description("도서 대여 불가 사유").optional()
+                                , fieldWithPath("data[].bookCategories").type(JsonFieldType.ARRAY).description("도서 카테고리 정보")
+                                , fieldWithPath("data[].bookCategories[].categoryId").type(JsonFieldType.NUMBER).description("도서 카테고리 아이디")
+                                , fieldWithPath("data[].bookCategories[].categoryName").type(JsonFieldType.STRING).description("도서 카테고리 명")
+                        )
+                ));
+
+
+    }
+    //파라메터 테스트
+    FindBooksResponse getFindBooksResponse() {
+        String json ="{\n"
+                + "    \"data\": [\n"
+                + "        {\n"
+                + "            \"bookId\": 1,\n"
+                + "            \"title\": \"너에게 해주지 못한 말들\",\n"
+                + "            \"author\": \"권태영\",\n"
+                + "            \"isAvailable\": true,\n"
+                + "            \"notAvailableReason\": null,\n"
+                + "            \"bookCategories\": [\n"
+                + "                {\n"
+                + "                    \"categoryId\": 1,\n"
+                + "                    \"categoryName\": \"문학\"\n"
+                + "                }\n"
+                + "            ]\n"
+                + "        },\n"
+                + "        {\n"
+                + "            \"bookId\": 2,\n"
+                + "            \"title\": \"단순하게 배부르게\",\n"
+                + "            \"author\": \"현영서\",\n"
+                + "            \"isAvailable\": true,\n"
+                + "            \"notAvailableReason\": null,\n"
+                + "            \"bookCategories\": [\n"
+                + "                {\n"
+                + "                    \"categoryId\": 1,\n"
+                + "                    \"categoryName\": \"문학\"\n"
+                + "                }\n"
+                + "            ]\n"
+                + "        },\n"
+                + "        {\n"
+                + "            \"bookId\": 3,\n"
+                + "            \"title\": \"게으른 사랑\",\n"
+                + "            \"author\": \"권태영\",\n"
+                + "            \"isAvailable\": true,\n"
+                + "            \"notAvailableReason\": null,\n"
+                + "            \"bookCategories\": [\n"
+                + "                {\n"
+                + "                    \"categoryId\": 1,\n"
+                + "                    \"categoryName\": \"문학\"\n"
+                + "                }\n"
+                + "            ]\n"
+                + "        }\n"
+                + "    ]\n"
+                + "}";
+        try {
+            return objectMapper.readValue(json, FindBooksResponse.class);
+        } catch (JsonProcessingException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+    @Test
+    @DisplayName("도서 업데이트 API 문서 작성")
+    void updateBookRestDocTest() throws Exception {
+
+    }
+    //파라메터 테스트
+
+//    @GetMapping
+//    public ResponseEntity<FindBooksResponse> findBooks(@ModelAttribute @Valid FindBooksRequest request) throws KyobongException {
+//        return ResponseEntity.ok(bookFacade.findBooks(request));
+//    }
+//
+//    @PutMapping( "/{bookId}")
+//    public ResponseEntity<UpdateBookResponse> updateBook( @PathVariable(value = "bookId") Long bookId, @RequestBody
+//    @Valid UpdateBookRequest request) throws KyobongException {
+//        return ResponseEntity.ok(bookFacade.updateBook(bookId, request));
+//    }
 }
