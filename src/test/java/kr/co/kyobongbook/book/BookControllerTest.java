@@ -1,28 +1,29 @@
 package kr.co.kyobongbook.book;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.validation.Valid;
 import kr.co.kyobongbook.book.dto.get.request.FindBooksRequest;
 import kr.co.kyobongbook.book.dto.get.response.FindBooksResponse;
 import kr.co.kyobongbook.book.dto.put.request.UpdateBookRequest;
 import kr.co.kyobongbook.book.dto.put.response.UpdateBookResponse;
 import kr.co.kyobongbook.book.service.facade.impl.BookFacadeImpl;
-import kr.co.kyobongbook.common.infra.exception.KyobongException;
 import kr.co.kyobongbook.common.util.DtoToQueryParamUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,15 +34,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
-import org.springframework.restdocs.request.RequestDocumentation;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @AutoConfigureMockMvc // -> webAppContextSetup(webApplicationContext)
 @AutoConfigureRestDocs // -> apply(documentationConfiguration(restDocumentation))
@@ -55,6 +50,59 @@ class BookControllerTest {
     private ObjectMapper objectMapper;
 
 
+    String getengthString(Integer length) {
+        String returnVal = "";
+        for (int idx=0; idx<length; idx++) {
+            returnVal += idx + "";
+        }
+        return returnVal;
+    }
+
+    @Test
+    @DisplayName("도서 조회 파라메터  valid 테스트")
+    void findBooksParametersValidTest() throws Exception {
+        FindBooksRequest findBooksRequest =  FindBooksRequest.builder()
+                .title("너에게 해주지 못한 말들" + getengthString(1000))
+                .author("권태영"  + getengthString(1000))
+                .categoryName("문학" + getengthString(1000))
+                .page(0)
+                .size(100)
+                .sort("title")
+                .sortDirection("asc")
+                .build();
+        String url = String.format("%s%s", "/book?",
+                DtoToQueryParamUtil.convertToQueryParams(findBooksRequest));
+
+        mockMvc.perform(get(url)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest()).andReturn();
+    }
+
+    @Test
+    @DisplayName("도서 정보 수정 파라메터 valid 테슽")
+    void updateBookTest() throws Exception {
+        UpdateBookRequest request = UpdateBookRequest.builder()
+                .categoryId(1L)
+                .updateCategoryId(5L)
+                .isAvailable(false)
+                .notAvailableReason("분실" + getengthString(1000))
+                .build();
+        Mockito.when(bookFacade.updateBook(anyLong(),any()))
+                .thenReturn(UpdateBookResponse.builder()
+                        .isUpdate(true)
+                        .build());
+
+        String url = "/book/{bookId}";
+        mockMvc.perform(put(url, 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                ).andDo(print())
+                .andExpect(status().isBadRequest());
+    }
 
     @Test
     @DisplayName("도서 조회 API 문서 작성")
@@ -104,8 +152,6 @@ class BookControllerTest {
                                 , fieldWithPath("data[].bookCategories[].categoryName").type(JsonFieldType.STRING).description("도서 카테고리 명")
                         )
                 ));
-
-
     }
     //파라메터 테스트
     FindBooksResponse getFindBooksResponse() {
@@ -162,18 +208,44 @@ class BookControllerTest {
     @Test
     @DisplayName("도서 업데이트 API 문서 작성")
     void updateBookRestDocTest() throws Exception {
+        UpdateBookRequest request = UpdateBookRequest.builder()
+                .categoryId(1L)
+                .updateCategoryId(5L)
+                .isAvailable(false)
+                .notAvailableReason("분실")
+                .build();
+        Mockito.when(bookFacade.updateBook(anyLong(),any()))
+                .thenReturn(UpdateBookResponse.builder()
+                        .isUpdate(true)
+                        .build());
 
+        String url = "/book/{bookId}";
+        mockMvc.perform(RestDocumentationRequestBuilders.put(url, 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+        ).andDo(print())
+                .andExpect(status().isOk()).andDo(document("book-update"
+                        , preprocessRequest(prettyPrint())
+                        , preprocessResponse(prettyPrint())
+                        ,pathParameters(
+                                parameterWithName("bookId").description("도서 아이디")
+                        )
+                        , requestFields(
+                                fieldWithPath("categoryId").type(JsonFieldType.NUMBER)
+                                        .description("변경 전 카테고리 아이디")
+                        , fieldWithPath("updateCategoryId").type(JsonFieldType.NUMBER)
+                                        .description("변경 할 카테고리 아이디")
+                        , fieldWithPath("isAvailable").type(JsonFieldType.BOOLEAN)
+                                        .description("책 대여 가능 여부")
+                                , fieldWithPath("notAvailableReason").type(JsonFieldType.STRING)
+                                        .description("대여 불가 사유")
+                        )
+                        , responseFields(
+                                fieldWithPath("isUpdate").type(JsonFieldType.BOOLEAN)
+                                        .description("업데이트 완료 여부")
+                        )
+                ));
     }
-    //파라메터 테스트
 
-//    @GetMapping
-//    public ResponseEntity<FindBooksResponse> findBooks(@ModelAttribute @Valid FindBooksRequest request) throws KyobongException {
-//        return ResponseEntity.ok(bookFacade.findBooks(request));
-//    }
-//
-//    @PutMapping( "/{bookId}")
-//    public ResponseEntity<UpdateBookResponse> updateBook( @PathVariable(value = "bookId") Long bookId, @RequestBody
-//    @Valid UpdateBookRequest request) throws KyobongException {
-//        return ResponseEntity.ok(bookFacade.updateBook(bookId, request));
-//    }
 }

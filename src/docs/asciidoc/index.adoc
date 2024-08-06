@@ -36,19 +36,21 @@ include::{snippets}/book-search/http-response.adoc[]
 include::{snippets}/book-search/response-fields.adoc[]
 ****
 
-// [[도서수정]]
-// === [교봉] 도서 수정
-//
-// ****
-// - Http Request:
-// include::{snippets}/book-update/http-request.adoc[]
-//
-// - Request Fields:
-// include::{snippets}/book-update/request-fields.adoc[]
-//
-// - Http Response:
-// include::{snippets}/book-update/http-response.adoc[]
-//
-// - Response Fields:
-// include::{snippets}/book-update/response-fields.adoc[]
-// ****
+[[도서수정]]
+=== [교봉] 도서 수정
+
+****
+- path parameters:
+include::{snippets}/book-update/path-parameters.adoc[]
+- Http Request:
+include::{snippets}/book-update/http-request.adoc[]
+
+- Request Fields:
+include::{snippets}/book-update/request-fields.adoc[]
+
+- Http Response:
+include::{snippets}/book-update/http-response.adoc[]
+
+- Response Fields:
+include::{snippets}/book-update/response-fields.adoc[]
+****

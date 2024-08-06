@@ -3,21 +3,22 @@ package kr.co.kyobongbook.common.infra.exception.handler;
 import java.security.InvalidParameterException;
 import kr.co.kyobongbook.common.infra.exception.KyobongException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.BindException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleException(Exception ex) {
-        log.error("Unexpected error occurred message {}", ex.getMessage(), ex);
-        // 모든 예외에 대한 처리 로직
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Internal Server Error");
-    }
+
 
     @ExceptionHandler(KyobongException.class)
     public ResponseEntity<String> handleCustomException(KyobongException ex) {
@@ -33,48 +34,50 @@ public class GlobalExceptionHandler {
         String errorMessage = "Invalid parameter: " + ex.getMessage();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
     }
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<String> handleExceptionForInvalidParam(Exception ex) {
+        log.error("handleExceptionForInvalidParam error occurred message {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
 
-//    @ExceptionHandler(DuplicateKeyException.class)
-//@ExceptionHandler(DuplicateKeyException.class)
-//@ResponseBody
-//public ResponseEntity<Object> handleDuplicateKeyException(HttpServletRequest request,
-//        final DuplicateKeyException e) {
-//    printExceptionLog(request, e);
-//
-//    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-//            .body(new ErrorAPIResponse(ErrCode.DUPLICATE_KEY));
-//}
-//
-//    @ExceptionHandler(AccessDeniedException.class)
-//    @ResponseBody
-//    public ResponseEntity<Object> handleAccessDeniedException(HttpServletRequest request,
-//            final AccessDeniedException e) {
-//        printExceptionLog(request, e);
-//
-//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-//                .body(new ErrorAPIResponse(SecurityErrorCode.UNAUTHORIZED));
-//    }
-//
-//    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-//    @ResponseBody
-//    public ResponseEntity<String> handleHttpRequestMethodNotSupportedException(
-//            HttpServletRequest request, final HttpRequestMethodNotSupportedException e) {
-//        printExceptionLog(request, e);
-//
-//        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrCode.NOT_FOUND.getDescription());
-//    }
-//
-//    @ExceptionHandler(MethodArgumentNotValidException.class)
-//    public ResponseEntity<Object> handleValidationExceptions(HttpServletRequest request,
-//            MethodArgumentNotValidException e) {
-//        printExceptionLog(request, e);
-//
-//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorAPIResponse(e));
-//    }
-//
-//    @ExceptionHandler(BindException.class)
-//    public ResponseEntity<Object> handleBindingExceptions(HttpServletRequest request,
-//            BindException e) {
-//        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorAPIResponse(e));
+    @ExceptionHandler(DuplicateKeyException.class)
+    public ResponseEntity<String> handleDuplicateKeyException(DuplicateKeyException ex) {
+        log.error("handleDuplicateKeyException error occurred message {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseBody
+    public ResponseEntity<String> handleAccessDeniedException(AccessDeniedException ex) {
+        log.error("handleDuplicateKeyException error occurred message {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    @ResponseBody
+    public ResponseEntity<String> handleHttpRequestMethodNotSupportedException(final HttpRequestMethodNotSupportedException ex) {
+        log.error("handleHttpRequestMethodNotSupportedException error occurred message {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Object> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        log.error("handleValidationExceptions error occurred message {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(BindException.class)
+    public ResponseEntity<Object> handleBindingExceptions(BindException ex) {
+        log.error("handleValidationExceptions error occurred message {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<String> handleException(Exception ex) {
+//        log.error("Unexpected error occurred message {}", ex.getMessage(), ex);
+//        // 모든 예외에 대한 처리 로직
+//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                .body("Internal Server Error");
 //    }
 }
