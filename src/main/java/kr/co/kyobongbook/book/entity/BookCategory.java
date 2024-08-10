@@ -1,8 +1,12 @@
 package kr.co.kyobongbook.book.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
@@ -22,8 +26,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Table(name = "book_categories" , uniqueConstraints = @UniqueConstraint(columnNames = {"book_id", "category_id"}))
+@Table(name = "book_category" , uniqueConstraints = @UniqueConstraint(columnNames = {"book_id", "category_id"}))
 public class BookCategories extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "book_id")
+    private Long bookCategoryId;
 
     @EmbeddedId
     private BookCategoryId bookCategoryId;
