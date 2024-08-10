@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS categories
+CREATE TABLE IF NOT EXISTS category
 (
     category_id   BIGINT AUTO_INCREMENT PRIMARY KEY,
     category_name VARCHAR(100) NOT NULL UNIQUE COMMENT '카테고리명',
@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS categories
 );
 
 
-CREATE TABLE IF NOT EXISTS books
+CREATE TABLE IF NOT EXISTS book
 (
     book_id              BIGINT AUTO_INCREMENT PRIMARY KEY,
     title                VARCHAR(1000) NOT NULL COMMENT '책 제목',
@@ -18,13 +18,13 @@ CREATE TABLE IF NOT EXISTS books
     updated_at           TIMESTAMP     NULL     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일'
 );
 
-CREATE TABLE IF NOT EXISTS book_categories
+CREATE TABLE IF NOT EXISTS book_category
 (
-    book_id     BIGINT COMMENT '책 아이디',
-    category_id BIGINT COMMENT '카테고리 아이디',
-    unique KEY (book_id, category_id),
-    FOREIGN KEY (book_id) REFERENCES books (book_id),
-    FOREIGN KEY (category_id) REFERENCES categories (category_id),
-    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at  TIMESTAMP NULL     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    book_category_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    book_id            BIGINT COMMENT '책 아이디',
+    category_id        BIGINT COMMENT '카테고리 아이디',
+    FOREIGN KEY (book_id) REFERENCES book (book_id),
+    UNIQUE KEY (book_id, category_id),
+    created_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at         TIMESTAMP NULL     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

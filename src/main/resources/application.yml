@@ -4,18 +4,27 @@ spring:
     profiles:
         active: dev
     datasource:
-        url: jdbc:mysql://localhost:3306/dev2
+        url: jdbc:mysql://localhost:3306/dev
         username: root
         password: 1q2w3e4r
     jpa:
         hibernate:
-            ddl-auto: update # 데이터베이스 스키마 자동 생성 또는 업데이트
+            ddl-auto: validate # 정상 매핑여부만 체크
             naming:
                 physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy # 카멜케이스 치환
         show-sql: true # 쿼리문 확인 가능
+        properties:
+          hibernate.hibernate:
+            default_batch_fetch_size: 1000
+            jdbc:
+                batch_size: 1000
     flyway:
         enabled: true
         baseline-on-migrate: true          #  flyway_schema_history 테이블을 자동으로 생성할지 여부 적용하지 않은  DB 만
+    devtools:
+        remote:
+            restart:
+                enabled: false
 ---
 server:
     port: 8080

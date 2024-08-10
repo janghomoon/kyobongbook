@@ -1,5 +1,7 @@
 package kr.co.kyobongbook.book.infra.enums;
 
+import java.util.Arrays;
+import kr.co.kyobongbook.book.entity.Category;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -14,4 +16,19 @@ public enum CategoryEnums {
     ;
     private final Long code;
     private final String name;
+
+
+    public static CategoryEnums findByCode(Long code) {
+        return Arrays.stream(values())
+                .filter(e -> e.getCode().equals(code))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Category toCategory() {
+        return Category.builder()
+                .categoryId(code)
+                .categoryName(name)
+                .build();
+    }
 }

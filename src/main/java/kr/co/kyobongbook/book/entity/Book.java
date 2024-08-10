@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Comment;
 
 @Getter
 @Entity
@@ -22,50 +23,32 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Table(name = "book")
-public class Books extends BaseEntity {
+public class Book extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "book_id")
+    @Comment("도서 아이디")
     private Long bookId;
 
     @Column(name = "title", nullable = false, length = 1000)
+    @Comment("도서 제목")
     private String title;
 
     @Column(name = "author", nullable = false, length = 1000)
+    @Comment("도서 저자")
     private String author;
 
     @Column(name = "is_available", nullable = false)
+    @Comment("책 대여 가능 여부")
     private Boolean isAvailable;
 
     @Column(name = "not_available_reason", length = 1000)
+    @Comment("책 대여 불가 사유")
     private String notAvailableReason;
 
     @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
+    @Comment("도서 카테고리")
     private List<BookCategory> bookCategories;
 
-//    public void updateBookInfo(UpdateBookRequest request) {
-//        if (request.getIsAvailable()!= null && !this.isAvailable.equals(request.getIsAvailable())) this.isAvailable = request.getIsAvailable();
-//        if (StringUtils.hasText(request.getNotAvailableReason())) this.notAvailableReason = request.getNotAvailableReason();
-//    }
-//
-//    public FindBooksResponseData toFindBoosResponseData() {
-//        return FindBooksResponseData.builder()
-//                .bookId(this.bookId)
-//                .title(this.title)
-//                .author(this.author)
-//                .isAvailable(this.isAvailable)
-//                .notAvailableReason(this.notAvailableReason)
-//                .bookCategories(toFindBoosResponseCategoryDataList())
-//                .build();
-//    }
-//
-//    private List<FindBooksResponseCategoryData> toFindBoosResponseCategoryDataList() {
-//        if (CollectionUtils.isEmpty(this.bookCategories)) {
-//            return null;
-//        }
-//        return this.bookCategories.stream()
-//                .map(BookCategories::toFindBoosResponseCategoryData)
-//                .toList();
-//    }
 }

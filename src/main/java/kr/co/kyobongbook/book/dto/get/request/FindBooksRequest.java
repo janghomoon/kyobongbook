@@ -1,8 +1,10 @@
 package kr.co.kyobongbook.book.dto.get.request;
 
 import ch.qos.logback.core.util.StringUtil;
-import kr.co.kyobongbook.book.entity.Books;
-import kr.co.kyobongbook.book.entity.Categories;
+import java.util.List;
+import kr.co.kyobongbook.book.entity.Book;
+import kr.co.kyobongbook.book.entity.BookCategory;
+import kr.co.kyobongbook.book.entity.Category;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,6 +24,7 @@ import org.springframework.data.domain.Sort.Direction;
 @Builder
 public class FindBooksRequest {
 
+    List<BookCategory> bookCategoryList;
     @Length(max = 100, message = "카테고리명은 100자를 초과할 수 없습니다.")
     private String categoryName;
     @Length(max = 1000, message = "제목은 1000자를 초과할 수 없습니다.")
@@ -66,9 +69,9 @@ public class FindBooksRequest {
 
     public Class toTargetClass() {
         if (this.sort.equals("categoryName")) {
-            return Categories.class;
+            return Category.class;
         }
-        return Books.class;
+        return Book.class;
     }
 
     private String toPageRequestSort() {
