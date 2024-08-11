@@ -1,6 +1,7 @@
 package kr.co.kyobongbook.book.dto.get.response;
 
 import java.util.List;
+import kr.co.kyobongbook.book.infra.enums.CategoryEnums;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,5 +20,5 @@ public class FindBooksResponseData {
     private String author;
     private Boolean isAvailable;
     private String notAvailableReason;
-    private List<FindBooksResponseCategoryData> bookCategories;
+    private List<CategoryEnums> bookCategories;
 }

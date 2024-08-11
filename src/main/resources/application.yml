@@ -14,8 +14,8 @@ spring:
                 physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy # 카멜케이스 치환
         show-sql: true # 쿼리문 확인 가능
         properties:
-          hibernate.hibernate:
-            default_batch_fetch_size: 1000
+          hibernate:
+            default_batch_fetch_size: 50
             jdbc:
                 batch_size: 1000
     flyway:

@@ -3,36 +3,81 @@ package kr.co.kyobongbook.book.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.util.List;
+import kr.co.kyobongbook.book.dto.get.request.FindBooksRequest;
+import kr.co.kyobongbook.book.entity.Book;
+import kr.co.kyobongbook.book.repository.BookRepository;
+import kr.co.kyobongbook.book.repository.specification.BookSpecification;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
 
-//@SpringBootTest
-//@Transactional
-//@Disabled
+@SpringBootTest
+
+@Transactional
 class BookServiceTest {
-//    @Autowired
-//    private BooksRepository booksRepository;
+    @Autowired
+    private BookRepository bookRepository;
 
     @Test
-    @DisplayName("조회 정상응답")
-
-    void findBooksSuccessTest() {
-//        //given
-//        FindBooksRequest request = FindBooksRequest.builder()
-//                .page(0)
-//                .size(100)
-//                .title("너에게 해주지 못한 말들")
-//                .build();
+    @DisplayName("제목, 저자, 카테고리 전체 파라메터 조회 응답 값 정상 테스트")
+    void findAllTest() {
+        //given
+        FindBooksRequest request = FindBooksRequest.builder()
+                .page(0)
+                .size(100)
+                .title("너에게 해주지 못한 말들")
+                 .author("권태영")
+                 .categoryCodes(List.of(1L))
+                .build();
 //        //when
-//        Page<Book> page = booksRepository.findBooksByParams(request);
-//        List<Book> books = page.get().toList();
+        BookSpecification bookSpecification = new BookSpecification(request.getTitle(), request.getAuthor(), request.toCategoryEnums());
+        Page<Book> page = bookRepository.findAll(bookSpecification, request.toPageable());
 //        //than
-//        //1권의 책 조회
-//        assertEquals(books.size(), 1);
-//        //같은 제목 1개
-//        assertEquals(books.stream().findAny().get().getTitle(), "너에게 해주지 못한 말들");
+        assertEquals(page.get().findAny().get().getTitle(), "너에게 해주지 못한 말들");
 
+        titleTest(FindBooksRequest.builder()
+                .page(0)
+                .size(100)
+                .title("초격자 투자")
+                .build());
 
+        authorTest(FindBooksRequest.builder()
+                .page(0)
+                .size(100)
+                .author("지승열")
+                .build());
+
+        categoryTest(FindBooksRequest.builder()
+                .categoryCodes(List.of(1L))
+                .build());
+    }
+
+    void titleTest(FindBooksRequest request) {
+        //when
+        BookSpecification bookSpecification = new BookSpecification(request.getTitle(), request.getAuthor(), request.toCategoryEnums());
+        Page<Book> page = bookRepository.findAll(bookSpecification, request.toPageable());
+        //then
+        assertEquals(page.get().findAny().get().getAuthor(), "장동혁");
+    }
+
+    void authorTest(FindBooksRequest request) {
+        //when
+        BookSpecification bookSpecification = new BookSpecification(request.getTitle(), request.getAuthor(), request.toCategoryEnums());
+        Page<Book> page = bookRepository.findAll(bookSpecification, request.toPageable());
+        //then
+        assertEquals(page.getTotalElements(), 2);
+    }
+
+    void categoryTest(FindBooksRequest request) {
+        //when
+        BookSpecification bookSpecification = new BookSpecification(request.getTitle(), request.getAuthor(), request.toCategoryEnums());
+        Page<Book> page = bookRepository.findAll(bookSpecification, request.toPageable());
+        //then
+        assertEquals(page.getTotalElements(), 3);
     }
 
     @Test

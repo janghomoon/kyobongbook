@@ -1,5 +1,6 @@
 package kr.co.kyobongbook.book.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -9,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.List;
+import kr.co.kyobongbook.book.dto.get.response.FindBooksResponseData;
 import kr.co.kyobongbook.common.entity.BaseEntity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -47,8 +49,21 @@ public class Book extends BaseEntity {
     @Comment("책 대여 불가 사유")
     private String notAvailableReason;
 
-    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST,
+            orphanRemoval = true)
     @Comment("도서 카테고리")
     private List<BookCategory> bookCategories;
+
+    public FindBooksResponseData toFindBooksResponseData() {
+        return FindBooksResponseData.builder()
+                .bookId(this.bookId)
+                .author(this.author)
+                .title(this.title)
+                .isAvailable(this.isAvailable)
+                .notAvailableReason(this.notAvailableReason)
+                .bookCategories(this.bookCategories.stream()
+                        .map(BookCategory::getCategory).toList())
+                .build();
+    }
 
 }

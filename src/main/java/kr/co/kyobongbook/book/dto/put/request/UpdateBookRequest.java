@@ -17,7 +17,6 @@ public class UpdateBookRequest {
     private Long categoryId;
     private Long updateCategoryId;
 
-
     private Boolean isAvailable;
     @Length(max = 1000, message = "대여 불가 사유는 1000자를 초과할 수 없습니다.")
     private String notAvailableReason;

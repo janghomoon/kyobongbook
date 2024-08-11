@@ -7,7 +7,6 @@ import com.querydsl.core.types.dsl.*;
 import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
-import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
@@ -21,8 +20,6 @@ public class QCategory extends EntityPathBase<Category> {
     public static final QCategory category = new QCategory("category");
 
     public final kr.co.kyobongbook.common.entity.QBaseEntity _super = new kr.co.kyobongbook.common.entity.QBaseEntity(this);
-
-    public final ListPath<BookCategory, QBookCategory> bookCategories = this.<BookCategory, QBookCategory>createList("bookCategories", BookCategory.class, QBookCategory.class, PathInits.DIRECT2);
 
     public final NumberPath<Long> categoryId = createNumber("categoryId", Long.class);
 
