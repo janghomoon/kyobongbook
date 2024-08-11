@@ -21,10 +21,10 @@ CREATE TABLE IF NOT EXISTS book
 CREATE TABLE IF NOT EXISTS book_category
 (
     book_category_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    book_id            BIGINT COMMENT '책 아이디',
-    category_id        BIGINT COMMENT '카테고리 아이디',
+    book_id          BIGINT COMMENT '책 아이디',
+    category_id      BIGINT    NOT NULL COMMENT '카테고리 아이디',
     FOREIGN KEY (book_id) REFERENCES book (book_id),
     UNIQUE KEY (book_id, category_id),
-    created_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at         TIMESTAMP NULL     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    created_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at       TIMESTAMP NULL     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

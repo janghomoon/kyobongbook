@@ -51,6 +51,4 @@ include::{snippets}/book-update/request-fields.adoc[]
 - Http Response:
 include::{snippets}/book-update/http-response.adoc[]
 
-- Response Fields:
-include::{snippets}/book-update/response-fields.adoc[]
 ****

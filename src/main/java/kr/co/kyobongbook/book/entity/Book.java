@@ -10,7 +10,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.List;
+import java.util.Objects;
 import kr.co.kyobongbook.book.dto.get.response.FindBooksResponseData;
+import kr.co.kyobongbook.book.dto.put.request.UpdateBookRequest;
+import kr.co.kyobongbook.book.infra.enums.CategoryEnums;
 import kr.co.kyobongbook.common.entity.BaseEntity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -49,7 +52,7 @@ public class Book extends BaseEntity {
     @Comment("책 대여 불가 사유")
     private String notAvailableReason;
 
-    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST,
+    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY, cascade = CascadeType.ALL,
             orphanRemoval = true)
     @Comment("도서 카테고리")
     private List<BookCategory> bookCategories;
@@ -62,8 +65,18 @@ public class Book extends BaseEntity {
                 .isAvailable(this.isAvailable)
                 .notAvailableReason(this.notAvailableReason)
                 .bookCategories(this.bookCategories.stream()
-                        .map(BookCategory::getCategory).toList())
+                        .map(BookCategory::toFindBooksResponseCategoryData).toList())
                 .build();
+    }
+
+    public void updateBookInfo(UpdateBookRequest request) {
+        if (request.getCategoryId() != null) this.bookCategories.stream()
+                .filter(c -> Objects.equals(
+                c.getCategory().getCode(), request.getCategoryId()))
+                .findAny()
+                .ifPresent(c -> c.updateCategory(CategoryEnums.findByCode(request.getUpdateCategoryId())));
+        if (request.getIsAvailable() != null) this.isAvailable = request.getIsAvailable();
+        if (request.getNotAvailableReason() != null) this.notAvailableReason = request.getNotAvailableReason();
     }
 
 }

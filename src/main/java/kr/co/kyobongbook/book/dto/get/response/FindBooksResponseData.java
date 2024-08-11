@@ -20,5 +20,5 @@ public class FindBooksResponseData {
     private String author;
     private Boolean isAvailable;
     private String notAvailableReason;
-    private List<CategoryEnums> bookCategories;
+    private List<FindBooksResponseCategoryData> bookCategories;
 }

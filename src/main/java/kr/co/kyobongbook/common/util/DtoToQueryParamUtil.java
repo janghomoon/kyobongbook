@@ -1,10 +1,13 @@
 package kr.co.kyobongbook.common.util;
 
+import aj.org.objectweb.asm.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class DtoToQueryParamUtil {
 
@@ -18,7 +21,8 @@ public class DtoToQueryParamUtil {
             field.setAccessible(true);
             Object value = field.get(dto);
             if (value != null) {
-                queryParamsMap.put(field.getName(), URLEncoder.encode(value.toString(), StandardCharsets.UTF_8));
+//                queryParamsMap.put(field.getName(), URLEncoder.encode(value.toString(), StandardCharsets.UTF_8));
+                queryParamsMap.put(field.getName(), value.toString());
             }
         }
 
@@ -30,4 +34,5 @@ public class DtoToQueryParamUtil {
         // 첫 번째 & 제거
         return queryParams.substring(1);
     }
+
 }

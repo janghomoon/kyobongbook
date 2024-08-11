@@ -3,7 +3,6 @@ package kr.co.kyobongbook.book.service.facade.impl;
 import kr.co.kyobongbook.book.dto.get.request.FindBooksRequest;
 import kr.co.kyobongbook.book.dto.get.response.FindBooksResponse;
 import kr.co.kyobongbook.book.dto.put.request.UpdateBookRequest;
-import kr.co.kyobongbook.book.dto.put.response.UpdateBookResponse;
 import kr.co.kyobongbook.book.service.BookService;
 import kr.co.kyobongbook.book.service.facade.BookFacade;
 import kr.co.kyobongbook.common.infra.exception.KyobongException;
@@ -22,7 +21,7 @@ public class BookFacadeImpl implements BookFacade {
         return bookService.findBooks(request);
     }
 
-    public UpdateBookResponse updateBook(Long bookId, UpdateBookRequest request) throws KyobongException {
-        return bookService.updateBook(bookId, request);
+    public void updateBook(Long bookId, UpdateBookRequest request) throws KyobongException {
+         bookService.updateBook(bookId, request);
     }
 }

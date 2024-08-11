@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import kr.co.kyobongbook.book.dto.get.response.FindBooksResponseCategoryData;
 import kr.co.kyobongbook.book.infra.convert.CategoryConverter;
 import kr.co.kyobongbook.book.infra.enums.CategoryEnums;
 import kr.co.kyobongbook.common.entity.BaseEntity;
@@ -43,5 +44,16 @@ public class BookCategory extends BaseEntity {
     @Column(name = "category_id")
     @Comment("카테고리 아이디")
     private CategoryEnums category;
+
+    public void updateCategory(CategoryEnums category) {
+        this.category = category;
+    }
+
+    public FindBooksResponseCategoryData toFindBooksResponseCategoryData() {
+        return FindBooksResponseCategoryData.builder()
+                .categoryId(category.getCode())
+                .categoryName(category.getName())
+                .build();
+    }
 
 }

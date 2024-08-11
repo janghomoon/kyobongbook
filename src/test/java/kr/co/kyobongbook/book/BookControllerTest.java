@@ -2,6 +2,7 @@ package kr.co.kyobongbook.book;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
@@ -21,18 +22,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 import kr.co.kyobongbook.book.dto.get.request.FindBooksRequest;
 import kr.co.kyobongbook.book.dto.get.response.FindBooksResponse;
 import kr.co.kyobongbook.book.dto.put.request.UpdateBookRequest;
-import kr.co.kyobongbook.book.dto.put.response.UpdateBookResponse;
 import kr.co.kyobongbook.book.service.facade.impl.BookFacadeImpl;
 import kr.co.kyobongbook.common.util.DtoToQueryParamUtil;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +43,8 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 @AutoConfigureMockMvc // -> webAppContextSetup(webApplicationContext)
 @AutoConfigureRestDocs // -> apply(documentationConfiguration(restDocumentation))
@@ -115,43 +116,45 @@ class BookControllerTest {
     @Test
     @DisplayName("도서 정보 수정 파라메터 valid 테슽")
     void updateBookTest() throws Exception {
-//        UpdateBookRequest request = UpdateBookRequest.builder()
-//                .categoryId(1L)
-//                .updateCategoryId(5L)
-//                .isAvailable(false)
-//                .notAvailableReason("분실" + getengthString(1000))
-//                .build();
-//        Mockito.when(bookFacade.updateBook(anyLong(),any()))
-//                .thenReturn(UpdateBookResponse.builder()
-//                        .isUpdate(true)
-//                        .build());
-//
-//        String url = "/book/{bookId}";
-//        mockMvc.perform(put(url, 1L)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(request))
-//                ).andDo(print())
-//                .andExpect(status().isBadRequest());
-    }
+        UpdateBookRequest request = UpdateBookRequest.builder()
+                .categoryId(1L)
+                .updateCategoryId(5L)
+                .isAvailable(false)
+                .notAvailableReason("분실" + getengthString(1000))
+                .build();
+        doNothing().when(bookFacade).updateBook(anyLong(),any());
 
+        String url = "/book/{bookId}";
+        mockMvc.perform(put(url, 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                ).andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+    MultiValueMap<String, String> toParams(FindBooksRequest request) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("title", request.getTitle());
+        params.add("author", request.getAuthor());
+        params.add("page", String.valueOf(request.getPage()));
+        params.add("size", String.valueOf(request.getSize()));
+        return params;
+    }
     @Test
     @DisplayName("도서 조회 API 문서 작성")
     void findBooksRestDocTest() throws Exception {
+        List<Long> categoryCodes = List.of(1L);
         FindBooksRequest findBooksRequest =  FindBooksRequest.builder()
                 .title("너에게 해주지 못한 말들")
                 .author("권태영")
-                .categoryCodes(List.of(1L))
+                .categoryCodes(categoryCodes)
                 .page(0)
                 .size(100)
                 .build();
         Mockito.when(bookFacade.findBooks(any()))
                 .thenReturn(getFindBooksResponse());
 
-        String url = String.format("%s%s", "/book?",
-                DtoToQueryParamUtil.convertToQueryParams(findBooksRequest));
-
-        mockMvc.perform(get(url)
+        mockMvc.perform(get("/book").params(toParams(findBooksRequest))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                 )
@@ -160,9 +163,9 @@ class BookControllerTest {
                         , preprocessRequest(prettyPrint())
                         , preprocessResponse(prettyPrint())
                 , queryParameters(
-                                parameterWithName("categoryCodes").description("카테고리 코드 List")
-                                , parameterWithName("title").description("도서 제목")
-                                , parameterWithName("author").description("저자")
+                                parameterWithName("categoryCodes").description("카테고리 코드 List").optional()
+                                , parameterWithName("title").description("도서 제목").optional()
+                                , parameterWithName("author").description("저자").optional()
                                 , parameterWithName("page").description("페이지 넘버")
                                 , parameterWithName("size").description("노출 데이터 로우 수")
                         )
@@ -173,9 +176,9 @@ class BookControllerTest {
                                 , fieldWithPath("data[].author").type(JsonFieldType.STRING).description("도서 저자")
                                 , fieldWithPath("data[].isAvailable").type(JsonFieldType.BOOLEAN).description("도서 대여 가능 여부")
                                 , fieldWithPath("data[].notAvailableReason").type(JsonFieldType.STRING).description("도서 대여 불가 사유").optional()
-                                , fieldWithPath("data[].bookCategories").type(JsonFieldType.ARRAY).description("도서 카테고리 정보")
-                                , fieldWithPath("data[].bookCategories[].categoryId").type(JsonFieldType.NUMBER).description("도서 카테고리 아이디")
-                                , fieldWithPath("data[].bookCategories[].categoryName").type(JsonFieldType.STRING).description("도서 카테고리 명")
+                                , fieldWithPath("data[].bookCategories").type(JsonFieldType.ARRAY).description("도서 카테고리 정보 CategoryEnum 참조")
+                                , fieldWithPath("data[].bookCategories[].categoryId").type(JsonFieldType.NUMBER).description("도서 카테고리 코드  CategoryEnum 참조")
+                                , fieldWithPath("data[].bookCategories[].categoryName").type(JsonFieldType.STRING).description("도서 카테고리 명 CategoryEnum 참조")
                         )
                 ));
     }
@@ -235,44 +238,38 @@ class BookControllerTest {
     @Test
     @DisplayName("도서 업데이트 API 문서 작성")
     void updateBookRestDocTest() throws Exception {
-//        UpdateBookRequest request = UpdateBookRequest.builder()
-//                .categoryId(1L)
-//                .updateCategoryId(5L)
-//                .isAvailable(false)
-//                .notAvailableReason("분실")
-//                .build();
-//        Mockito.when(bookFacade.updateBook(anyLong(),any()))
-//                .thenReturn(UpdateBookResponse.builder()
-//                        .isUpdate(true)
-//                        .build());
-//
-//        String url = "/book/{bookId}";
-//        mockMvc.perform(RestDocumentationRequestBuilders.put(url, 1L)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .accept(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(request))
-//        ).andDo(print())
-//                .andExpect(status().isOk()).andDo(document("book-update"
-//                        , preprocessRequest(prettyPrint())
-//                        , preprocessResponse(prettyPrint())
-//                        ,pathParameters(
-//                                parameterWithName("bookId").description("도서 아이디")
-//                        )
-//                        , requestFields(
-//                                fieldWithPath("categoryId").type(JsonFieldType.NUMBER)
-//                                        .description("변경 전 카테고리 아이디")
-//                        , fieldWithPath("updateCategoryId").type(JsonFieldType.NUMBER)
-//                                        .description("변경 할 카테고리 아이디")
-//                        , fieldWithPath("isAvailable").type(JsonFieldType.BOOLEAN)
-//                                        .description("책 대여 가능 여부")
-//                                , fieldWithPath("notAvailableReason").type(JsonFieldType.STRING)
-//                                        .description("대여 불가 사유")
-//                        )
-//                        , responseFields(
-//                                fieldWithPath("isUpdate").type(JsonFieldType.BOOLEAN)
-//                                        .description("업데이트 완료 여부")
-//                        )
-//                ));
+        UpdateBookRequest request = UpdateBookRequest.builder()
+                .categoryId(1L)
+                .updateCategoryId(5L)
+                .isAvailable(false)
+                .notAvailableReason("분실")
+                .build();
+        doNothing().when(bookFacade).updateBook(anyLong(),any());
+
+
+        String url = "/book/{bookId}";
+        mockMvc.perform(RestDocumentationRequestBuilders.put(url, 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+        ).andDo(print())
+                .andExpect(status().isOk()).andDo(document("book-update"
+                        , preprocessRequest(prettyPrint())
+                        , preprocessResponse(prettyPrint())
+                        ,pathParameters(
+                                parameterWithName("bookId").description("도서 아이디")
+                        )
+                        , requestFields(
+                                fieldWithPath("categoryId").type(JsonFieldType.NUMBER)
+                                        .description("변경 전 카테고리 아이디")
+                        , fieldWithPath("updateCategoryId").type(JsonFieldType.NUMBER)
+                                        .description("변경 할 카테고리 아이디")
+                        , fieldWithPath("isAvailable").type(JsonFieldType.BOOLEAN)
+                                        .description("책 대여 가능 여부")
+                                , fieldWithPath("notAvailableReason").type(JsonFieldType.STRING)
+                                        .description("대여 불가 사유")
+                        )
+                ));
     }
 
 }

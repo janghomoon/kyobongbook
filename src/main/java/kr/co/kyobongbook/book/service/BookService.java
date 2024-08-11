@@ -1,5 +1,6 @@
 package kr.co.kyobongbook.book.service;
 
+import java.util.Optional;
 import kr.co.kyobongbook.book.dto.get.request.FindBooksRequest;
 import kr.co.kyobongbook.book.dto.get.response.FindBooksResponse;
 import kr.co.kyobongbook.book.dto.put.request.UpdateBookRequest;
@@ -37,18 +38,11 @@ public class BookService {
 
 
     @Transactional
-    public UpdateBookResponse updateBook(Long bookId, UpdateBookRequest request) throws KyobongException {
-//        Optional<Book> optional = booksRepository.findById(bookId);
-//        if (optional.isEmpty()) throw new KyobongException("updateBook error 책정보 없음");
-//        Book book = optional.get();
-//        book.updateBookInfo(request);
-//        BookCategory bookCategory = book.getBookCategories().stream().filter(c -> Objects.equals(
-//                c.getBookCategoryId().getCategoryId(), request.getCategoryId())).findAny().orElse(null);
-//
-//        if (Objects.nonNull(bookCategory)) {
-//            booksRepository.updateBookCategory(bookId, request);
-//        }
-        return UpdateBookResponse.builder().isUpdate(true).build();
+    public void updateBook(Long bookId, UpdateBookRequest request) throws KyobongException {
+        Optional<Book> optional = bookRepository.findById(bookId);
+        if (optional.isEmpty()) throw new KyobongException("updateBook error 책정보 없음");
+        Book book = optional.get();
+        book.updateBookInfo(request);
     }
 
 }

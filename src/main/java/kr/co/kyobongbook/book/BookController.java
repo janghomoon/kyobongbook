@@ -6,7 +6,6 @@ import jakarta.validation.Valid;
 import kr.co.kyobongbook.book.dto.get.request.FindBooksRequest;
 import kr.co.kyobongbook.book.dto.get.response.FindBooksResponse;
 import kr.co.kyobongbook.book.dto.put.request.UpdateBookRequest;
-import kr.co.kyobongbook.book.dto.put.response.UpdateBookResponse;
 import kr.co.kyobongbook.book.service.facade.impl.BookFacadeImpl;
 import kr.co.kyobongbook.common.infra.exception.KyobongException;
 import lombok.RequiredArgsConstructor;
@@ -40,9 +39,10 @@ public class BookController {
     }
 
     @PutMapping( "/{bookId}")
-    public ResponseEntity<UpdateBookResponse> updateBook( @PathVariable(value = "bookId") Long bookId, @RequestBody
+    public ResponseEntity<Void> updateBook( @PathVariable(value = "bookId") Long bookId, @RequestBody
     @Valid UpdateBookRequest request) throws KyobongException {
-        return ResponseEntity.ok(bookFacade.updateBook(bookId, request));
+        bookFacade.updateBook(bookId, request);
+        return ResponseEntity.ok().build();
     }
 
 }

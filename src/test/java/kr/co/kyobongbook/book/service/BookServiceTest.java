@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.List;
+import java.util.Optional;
 import kr.co.kyobongbook.book.dto.get.request.FindBooksRequest;
+import kr.co.kyobongbook.book.dto.put.request.UpdateBookRequest;
 import kr.co.kyobongbook.book.entity.Book;
 import kr.co.kyobongbook.book.repository.BookRepository;
 import kr.co.kyobongbook.book.repository.specification.BookSpecification;
@@ -81,48 +83,25 @@ class BookServiceTest {
     }
 
     @Test
-    @DisplayName("도서 정보 카테고리 업데이트 테스트")
+    @DisplayName("카테고리 변경, 분실 여부 변경 테스트")
     void updateBookCateogryTest() {
 //        //given
-//        UpdateBookRequest request= UpdateBookRequest.builder()
-//                .categoryId(1L)
-//                .updateCategoryId(5L)
-//                .isAvailable(false)
-//                .notAvailableReason("책 분실로 인한 대여 불가")
-//                .build();
-//        Long bookId = 1L;
+        UpdateBookRequest request= UpdateBookRequest.builder()
+                .categoryId(1L)
+                .updateCategoryId(5L)
+                .isAvailable(false)
+                .notAvailableReason("책 분실로 인한 대여 불가")
+                .build();
+        Long bookId = 1L;
 //        //when
-//        booksRepository.updateBookCategory(bookId, request);
+        Optional<Book> optional = bookRepository.findById(bookId);
+        optional.get().updateBookInfo(request);
 //        //then
-//        Book book = booksRepository.findById(bookId).get();
-//        assertEquals(book.getBookCategories().stream().findAny().get().getBookCategoryId().getCategoryId(), request.getUpdateCategoryId());
+        Book book = bookRepository.findById(bookId).get();
+        assertEquals(book.getBookCategories().stream().findAny().get().getCategory().getCode(), request.getUpdateCategoryId());
+        assertFalse(book.getIsAvailable());
+        assertEquals(book.getNotAvailableReason(), request.getNotAvailableReason());
 
     }
-    @Test
-    @DisplayName("도서 정보 업데이트  대여불가 및 대여불가 사유")
-    void updateBookTest() {
-//        //ginven
-//        UpdateBookRequest request= UpdateBookRequest.builder()
-//                .categoryId(1L)
-//                .updateCategoryId(5L)
-//                .isAvailable(false)
-//                .notAvailableReason("책 분실로 인한 대여 불가")
-//                .build();
-//        Long bookId = 1L;
-//
-//        //when
-//        Optional<Book> optional = booksRepository.findById(bookId);
-//        if (optional.isEmpty()) throw new KyobongException("updateBook error 책정보 없음");
-//        Book book = optional.get();
-//        book.updateBookInfo(request);
-//
-//        //then
-//        //도서 대여 상태 확인
-//        Optional<Book> optionalResult = booksRepository.findById(bookId);
-//        Book bookResult = optionalResult.get();
-//        //도서 대여 상태 확인
-//        assertFalse(bookResult.getIsAvailable());
-//        //도서 대여 불가 사유 확인
-//        assertEquals(bookResult.getNotAvailableReason(), request.getNotAvailableReason());
-    }
+
 }
